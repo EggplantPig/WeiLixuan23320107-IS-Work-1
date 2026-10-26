@@ -126,6 +126,10 @@ Snyk SCA job succeeded in 27 seconds with both security artifacts uploaded:
 
 ![Snyk job](screenshots/08-snyk-job.png)
 
+Snyk HTML report artifact (9 dependencies, 0 known vulnerabilities, 0 vulnerable paths):
+
+![Snyk report](screenshots/09-snyk-report.png)
+
 Local SAST/SCA summaries (bandit: 0 findings; safety: no known vulnerabilities):
 
 ![SAST and SCA](cve/CVE-2016-3714/screenshots/05-sast-sca.png)

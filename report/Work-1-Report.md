@@ -66,6 +66,10 @@ Snyk tested 9 dependencies for known issues and reported 0 issues and 0 vulnerab
 
 ![Snyk job](../screenshots/08-snyk-job.png)
 
+Snyk HTML report artifact:
+
+![Snyk report](../screenshots/09-snyk-report.png)
+
 ![SAST and SCA reports](../cve/CVE-2016-3714/screenshots/05-sast-sca.png)
 
 ## 4. Real CVE: CVE-2016-3714 (ImageMagick "ImageTragick")
