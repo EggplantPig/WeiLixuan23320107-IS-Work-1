@@ -74,6 +74,8 @@ jobs:
   dependency-check:
     name: SCA - OWASP Dependency-Check
     runs-on: ubuntu-latest
+    env:
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
     timeout-minutes: 20
 
     steps:
@@ -93,9 +95,7 @@ jobs:
           ./dc/dependency-check/bin/dependency-check.sh --version
 
       - name: Run OWASP Dependency-Check
-        if: ${{ secrets.NVD_API_KEY != '' }}
-        env:
-          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        if: env.NVD_API_KEY != ''
         run: |
           mkdir -p reports
           ./dc/dependency-check/bin/dependency-check.sh \
@@ -109,7 +109,7 @@ jobs:
             --nvdApiKey "$NVD_API_KEY"
 
       - name: Explain skipped Dependency-Check
-        if: ${{ secrets.NVD_API_KEY == '' }}
+        if: env.NVD_API_KEY == ''
         run: |
           echo "::notice::NVD_API_KEY is not configured; OWASP Dependency-Check scan was skipped."
           echo "Add NVD_API_KEY as a repository secret and re-run the workflow to enable it."
