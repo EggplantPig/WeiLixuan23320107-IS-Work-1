@@ -93,17 +93,26 @@ jobs:
           ./dc/dependency-check/bin/dependency-check.sh --version
 
       - name: Run OWASP Dependency-Check
-        continue-on-error: true
-        timeout-minutes: 8
+        if: ${{ secrets.NVD_API_KEY != '' }}
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: |
           mkdir -p reports
-          ARGS="--project Work-1 --scan . --exclude .git --enableExperimental --format HTML --format JSON --out reports --failOnCVSS 11"
-          if [ -n "$NVD_API_KEY" ]; then
-            ARGS="$ARGS --nvdApiKey $NVD_API_KEY"
-          fi
-          ./dc/dependency-check/bin/dependency-check.sh $ARGS
+          ./dc/dependency-check/bin/dependency-check.sh \
+            --project Work-1 \
+            --scan . \
+            --exclude .git \
+            --enableExperimental \
+            --format HTML --format JSON \
+            --out reports \
+            --failOnCVSS 11 \
+            --nvdApiKey "$NVD_API_KEY"
+
+      - name: Explain skipped Dependency-Check
+        if: ${{ secrets.NVD_API_KEY == '' }}
+        run: |
+          echo "::notice::NVD_API_KEY is not configured; OWASP Dependency-Check scan was skipped."
+          echo "Add NVD_API_KEY as a repository secret and re-run the workflow to enable it."
 
       - name: Upload Dependency-Check report
         if: always()
