@@ -107,19 +107,24 @@ Workflow: `.github/workflows/ci.yml`. It runs on every push to `main` and on pul
 - Uses Node.js 20 and the Snyk CLI (`snyk test --file=requirements.txt --package-manager=pip`).
 - The scan runs when the repository secret `SNYK_TOKEN` is configured. Without the token the job installs the CLI, skips the scan with an explicit notice, and leaves `safety` as the active SCA check.
 - When enabled, it generates `reports/snyk.json` and `reports/snyk-report.html` and uploads them as a separate artifact.
+- In the current successful pipeline, Snyk tested 9 dependencies for known issues and reported **0 issues, 0 vulnerable paths**; the reports are in the `snyk-report` artifact.
 - `SNYK_TOKEN` is a Snyk API token, not a GitHub token.
 
 Last successful pipeline: <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40357227529>
 
 ### CI evidence
 
-Actions run page showing the successful test/SAST/SCA pipeline and the Snyk job:
+Actions run page showing the successful test/SAST/SCA pipeline and the Snyk SCA job:
 
 ![CI pipeline](cve/CVE-2016-3714/screenshots/04-ci-pipeline.png)
 
 Actions job page showing the SAST, SCA, scan-summary and artifact steps:
 
 ![CI job steps](screenshots/07-ci-scan-summary.png)
+
+Snyk SCA job succeeded in 27 seconds with both security artifacts uploaded:
+
+![Snyk job](screenshots/08-snyk-job.png)
 
 Local SAST/SCA summaries (bandit: 0 findings; safety: no known vulnerabilities):
 

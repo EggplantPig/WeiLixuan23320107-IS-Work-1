@@ -62,6 +62,10 @@ The latest pipeline run passed: <https://github.com/EggplantPig/WeiLixuan2332010
 
 ![CI job steps](../screenshots/07-ci-scan-summary.png)
 
+Snyk tested 9 dependencies for known issues and reported 0 issues and 0 vulnerable paths; `snyk.json` and `snyk-report.html` are in the `snyk-report` artifact.
+
+![Snyk job](../screenshots/08-snyk-job.png)
+
 ![SAST and SCA reports](../cve/CVE-2016-3714/screenshots/05-sast-sca.png)
 
 ## 4. Real CVE: CVE-2016-3714 (ImageMagick "ImageTragick")
