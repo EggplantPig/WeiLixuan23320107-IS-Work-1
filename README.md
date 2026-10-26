@@ -1,65 +1,65 @@
 # Work 1 — Secure REST API with CI/CD and Real CVE Analysis
 
-HDU IS 课程 Work 1 项目：使用 **Python / Flask** 实现带安全措施的功能性 REST API，并配置 SAST/SCA 的 CI 流水线；Vulhub 真实 CVE 的复现与修复部分将在后续提交中补充。
+HDU IS course, Work 1. A functional REST API built with **Python / Flask**, hardened with the security controls required by the assignment, and scanned by a SAST/SCA CI pipeline. The Vulhub CVE reproduction and fix will be added in a follow-up commit.
 
-> 当前状态：API、安全措施、单元测试与 GitHub Actions 已实现，CI 已通过；CVE 复现/修复章节待完成。
+> Status: API, security controls, unit tests and GitHub Actions are implemented and CI is passing. The CVE reproduction/fix section is still pending.
 
-## 1. API 说明
+## 1. API
 
-| 方法 | 路径 | 认证 | 说明 |
+| Method | Path | Auth | Description |
 |---|---|---|---|
-| `POST` | `/auth/login` | 无 | 使用 `login` 和 `password` 登录，成功返回 JWT |
-| `GET` | `/api/data` | Bearer JWT | 返回帖子列表（仅认证用户可访问） |
-| `POST` | `/api/data` | Bearer JWT | 创建帖子（第三个接口，演示参数化写入与 XSS 转义） |
+| `POST` | `/auth/login` | none | Log in with `login` and `password`; returns a JWT |
+| `GET` | `/api/data` | Bearer JWT | Return the list of posts (authenticated users only) |
+| `POST` | `/api/data` | Bearer JWT | Create a post (third endpoint; demonstrates parameterized writes and XSS escaping) |
 
-### 请求示例
+### Request examples
 
 ```bash
-# 登录
+# Log in
 curl -s -X POST http://127.0.0.1:5000/auth/login \
   -H "Content-Type: application/json" \
   -d '{"login":"alice","password":"Alice-Strong-Pass-1!"}'
 
-# 读取数据（替换 <TOKEN>）
+# Read data (replace <TOKEN>)
 curl -s http://127.0.0.1:5000/api/data \
   -H "Authorization: Bearer <TOKEN>"
 
-# 创建数据
+# Create data
 curl -s -X POST http://127.0.0.1:5000/api/data \
   -H "Authorization: Bearer <TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{"title":"Hello","content":"First post"}'
 ```
 
-第三个接口选择 `POST /api/data` 的原因：它同时覆盖写路径的 SQL 注入防护（参数化 `INSERT`）、XSS 防护（输出转义）、JWT 鉴权与输入校验，比单纯再加一个只读接口更能体现 Work 1 的安全评分点。
+`POST /api/data` was chosen as the third endpoint because it exercises the write path: parameterized `INSERT` (SQL injection protection), output escaping (XSS protection), JWT authentication and input validation. A read-only endpoint would cover fewer grading criteria.
 
-## 2. 已实施的安全措施
+## 2. Security controls
 
-### 2.1 SQL 注入防护
+### 2.1 SQL injection protection
 
-所有数据库访问都使用 `sqlite3` 参数化查询（`?` 占位符），不存在字符串拼接 SQL：
+All database access uses `sqlite3` parameterized queries (`?` placeholders); no SQL statement is built by string concatenation:
 
-- `app/auth.py`：`SELECT ... WHERE username = ?`
-- `app/api.py`：`SELECT`、`INSERT ... VALUES (?, ?, ?)`
+- `app/auth.py`: `SELECT ... WHERE username = ?`
+- `app/api.py`: `SELECT`, `INSERT ... VALUES (?, ?, ?)`
 
-`tests/test_api.py::test_sql_injection_payload_is_stored_literally` 验证注入串被当作普通文本存储，且表结构未被破坏。
+`tests/test_api.py::test_sql_injection_payload_is_stored_literally` verifies that an injection payload is stored as plain text and that the schema is not damaged.
 
-### 2.2 XSS 防护
+### 2.2 XSS protection
 
-- 使用 Flask 项目自带的 `markupsafe.escape`（框架内置转义函数）对返回的用户数据统一转义，见 `app/security.py::escape_text` 与 `app/api.py::serialize_post`。
-- 种子数据中包含 `<script>alert('stored-xss-demo')</script>`，`GET /api/data` 返回的是 `&lt;script&gt;...`，证明转义生效。
-- 测试：`tests/test_api.py::test_xss_payload_is_escaped_in_response`。
+- User-controlled values are escaped on output with `markupsafe.escape` (the framework's built-in escaper); see `app/security.py::escape_text` and `app/api.py::serialize_post`.
+- Seed data contains `<script>alert('stored-xss-demo')</script>`; `GET /api/data` returns `&lt;script&gt;...`, which proves escaping is applied.
+- Test: `tests/test_api.py::test_xss_payload_is_escaped_in_response`.
 
-### 2.3 Broken Authentication 防护
+### 2.3 Broken authentication protection
 
-- 登录成功后签发 **JWT（HS256）**，包含 `sub`、`username`、`iat`、`exp`，默认 60 分钟过期。
-- 受保护端点通过 `@token_required` 中间件校验 `Authorization: Bearer <token>`，无效或过期返回 401。
-- 密码使用 **bcrypt** 加盐哈希后存入数据库，绝不保存明文；登录失败统一返回 `invalid credentials`，避免用户名枚举。
-- 密钥（`JWT_SECRET`、`SECRET_KEY`）只从环境变量读取，仓库中不含真实密钥。
+- A **JWT (HS256)** is issued after a successful login. It contains `sub`, `username`, `iat` and `exp`, and expires after 60 minutes by default.
+- Protected endpoints validate `Authorization: Bearer <token>` through the `@token_required` decorator; invalid or expired tokens return 401.
+- Passwords are hashed with **bcrypt** (unique salt per password) and never stored in plaintext. Failed logins always return the same `invalid credentials` message to avoid username enumeration.
+- Secrets (`JWT_SECRET`, `SECRET_KEY`) are read from environment variables only; no real secret is committed to the repository.
 
-## 3. 本地运行
+## 3. Local development
 
-要求 Python 3.11+。
+Python 3.11+ is required.
 
 ```powershell
 cd E:\MyFile\IS-Lab\Work-1
@@ -74,9 +74,9 @@ flask --app app seed
 flask --app app run --port 5000
 ```
 
-启动后访问 `http://127.0.0.1:5000`。演示账号（仅本地实验用）：`alice / Alice-Strong-Pass-1!`、`bob / Bob-Strong-Pass-2!`。
+The API is then available at `http://127.0.0.1:5000`. Demo accounts for local testing only: `alice / Alice-Strong-Pass-1!` and `bob / Bob-Strong-Pass-2!`.
 
-运行测试：
+Run the tests:
 
 ```powershell
 pytest -q
@@ -84,36 +84,36 @@ pytest -q
 
 ## 4. CI/CD
 
-工作流：`.github/workflows/ci.yml`，在 push 到 `main` 和 pull request 时自动运行：
+Workflow: `.github/workflows/ci.yml`. It runs on every push to `main` and on pull requests:
 
 [![CI](https://github.com/EggplantPig/Work-1/actions/workflows/ci.yml/badge.svg)](https://github.com/EggplantPig/Work-1/actions/workflows/ci.yml)
 
-1. 安装依赖并运行 `pytest`。
-2. **SAST**：`bandit -r app`，生成 `reports/bandit.json`。
-3. **SCA**：`safety check -r requirements.txt`，生成 `reports/safety.txt`。
-4. 上传 `reports/` 作为构建产物（Actions 页面可下载或截图）。
+1. Install dependencies and run `pytest`.
+2. **SAST**: `bandit -r app`, writing `reports/bandit.json`.
+3. **SCA**: `safety check -r requirements.txt`, writing `reports/safety.txt`.
+4. Upload `reports/` as a build artifact (downloadable from the Actions page for report screenshots).
 
-> OWASP Dependency-Check CLI 已安装在本机用户级环境（`dependency-check`），后续可加入 CI 作为第二种 SCA 工具；当前 CI 使用 safety 完成依赖漏洞扫描。
+> OWASP Dependency-Check CLI is installed in the local user environment (`dependency-check`) and can be added to CI as a second SCA tool. The current pipeline uses safety for dependency vulnerability scanning.
 
-## 5. 项目结构
+## 5. Project structure
 
 ```text
 Work-1/
 ├── app/
-│   ├── __init__.py      # 应用工厂
+│   ├── __init__.py      # application factory
 │   ├── auth.py          # /auth/login
 │   ├── api.py           # /api/data GET/POST
-│   ├── db.py            # SQLite 连接与建表
-│   ├── security.py      # bcrypt、JWT、XSS 转义、鉴权装饰器
-│   └── seed.py          # 演示数据
-├── tests/               # pytest 单元测试
+│   ├── db.py            # SQLite connection and schema
+│   ├── security.py      # bcrypt, JWT, XSS escaping, auth decorator
+│   └── seed.py          # demo data
+├── tests/               # pytest unit tests
 ├── .github/workflows/ci.yml
 ├── requirements.txt
 ├── requirements-dev.txt
 └── run.py
 ```
 
-## 6. 真实 CVE 复现与修复（待完成）
+## 6. Real CVE reproduction and fix (TODO)
 
-- 脆弱环境：WSL 中已克隆 Vulhub 到 `/home/EggplantPig/vulhub`。
-- 待选定 CVE 后补充：CVE ID、环境启动命令、攻击复现步骤与截图、根因分析、修复内容、修复后攻击失败验证与回归测试。
+- Vulnerable environment: Vulhub is cloned in WSL at `/home/EggplantPig/vulhub`.
+- Pending CVE selection. This section will document: CVE ID, environment startup commands, reproduction steps and screenshots, root-cause analysis, the fix, proof that the attack fails after the fix, and regression tests.
