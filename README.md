@@ -118,14 +118,6 @@ Actions run page showing the successful test/SAST/SCA pipeline and the Snyk SCA 
 
 ![CI pipeline](cve/CVE-2016-3714/screenshots/04-ci-pipeline.png)
 
-Actions job page showing the SAST, SCA, scan-summary and artifact steps:
-
-![CI job steps](screenshots/07-ci-scan-summary.png)
-
-Snyk SCA job succeeded in 27 seconds with both security artifacts uploaded:
-
-![Snyk job](screenshots/08-snyk-job.png)
-
 Snyk HTML report artifact (9 dependencies, 0 known vulnerabilities, 0 vulnerable paths):
 
 ![Snyk report](screenshots/09-snyk-report.png)
@@ -284,3 +276,9 @@ A normal PNG is still processed, so the policy blocks the malicious coder withou
 - NVD CVE-2016-3714: <https://nvd.nist.gov/vuln/detail/CVE-2016-3714>
 - ImageTragick: <https://imagetragick.com/>
 - Exploit-DB 39767: <https://www.exploit-db.com/exploits/39767/>
+
+## 8. Deliverable files
+
+- [Work 1 report — PDF](report/Work-1-Report.pdf)
+- [Work 1 report — DOCX](report/Work-1-Report.docx)
+- [Work 1 report — Markdown source](report/Work-1-Report.md)
