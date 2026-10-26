@@ -8,7 +8,7 @@
 | Surname and Name | Wei Lixuan |
 | HDU number | 23320107 |
 | Repository | <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1> |
-| Last successful pipeline | <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40344831468> |
+| Last successful pipeline | <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40357227529> |
 
 ## 1. Purpose
 
@@ -52,11 +52,11 @@ Workflow file: `.github/workflows/ci.yml`. It runs on every push to `main` and o
 1. `pytest` unit tests.
 2. **SAST** with `bandit -r app`, producing `reports/bandit.json` and `reports/bandit.txt`.
 3. **SCA** with `safety check -r requirements.txt`, producing `reports/safety.txt`.
-4. **SCA** with the OWASP Dependency-Check CLI (v12.1.0), producing HTML/JSON reports as a separate artifact when the `NVD_API_KEY` secret is configured; otherwise the job skips the scan with an explicit notice.
+4. **SCA** with the Snyk CLI (`snyk test --file=requirements.txt --package-manager=pip`), producing JSON/HTML reports as a separate artifact when the `SNYK_TOKEN` secret is configured; otherwise the job skips the scan with an explicit notice.
 5. A readable scan summary published to the Actions job summary.
 6. Upload of the `reports/` directory as build artifacts.
 
-The latest pipeline run passed: <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40344831468>
+The latest pipeline run passed: <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40357227529>
 
 ![CI pipeline](../cve/CVE-2016-3714/screenshots/04-ci-pipeline.png)
 

@@ -102,18 +102,18 @@ Workflow: `.github/workflows/ci.yml`. It runs on every push to `main` and on pul
 4. Publish a readable scan summary to the GitHub Actions job summary.
 5. Upload `reports/` as a build artifact.
 
-**Second SCA job — OWASP Dependency-Check:**
+**Second SCA job — Snyk:**
 
-- Uses Java 17 and the official Dependency-Check CLI v12.1.0.
-- The scan runs when the repository secret `NVD_API_KEY` is configured. Without the key the job still validates the CLI download, skips the scan with an explicit notice, and leaves `safety` as the active SCA check.
-- When enabled, it scans the project, generates HTML/JSON reports and uploads `reports/` as a separate artifact.
-- Add the `NVD_API_KEY` repository secret to enable the Dependency-Check scan; the NVD API key is not a GitHub token.
+- Uses Node.js 20 and the Snyk CLI (`snyk test --file=requirements.txt --package-manager=pip`).
+- The scan runs when the repository secret `SNYK_TOKEN` is configured. Without the token the job installs the CLI, skips the scan with an explicit notice, and leaves `safety` as the active SCA check.
+- When enabled, it generates `reports/snyk.json` and `reports/snyk-report.html` and uploads them as a separate artifact.
+- `SNYK_TOKEN` is a Snyk API token, not a GitHub token.
 
-Last successful pipeline: <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40344831468>
+Last successful pipeline: <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40357227529>
 
 ### CI evidence
 
-Actions run page showing the successful test/SAST/SCA pipeline and the Dependency-Check job:
+Actions run page showing the successful test/SAST/SCA pipeline and the Snyk job:
 
 ![CI pipeline](cve/CVE-2016-3714/screenshots/04-ci-pipeline.png)
 
