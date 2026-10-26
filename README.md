@@ -105,16 +105,21 @@ Workflow: `.github/workflows/ci.yml`. It runs on every push to `main` and on pul
 **Second SCA job — OWASP Dependency-Check:**
 
 - Uses Java 17 and the official Dependency-Check CLI v12.1.0.
-- Scans the project, generates HTML/JSON reports and uploads `reports/` as a separate artifact.
-- Optional `NVD_API_KEY` repository secret speeds up the NVD update; the job is non-blocking because CI must still pass on networks where NVD updates are slow.
+- The scan runs when the repository secret `NVD_API_KEY` is configured. Without the key the job still validates the CLI download, skips the scan with an explicit notice, and leaves `safety` as the active SCA check.
+- When enabled, it scans the project, generates HTML/JSON reports and uploads `reports/` as a separate artifact.
+- Add the `NVD_API_KEY` repository secret to enable the Dependency-Check scan; the NVD API key is not a GitHub token.
 
-Last successful pipeline: <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40340173832>
+Last successful pipeline: <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40344831468>
 
 ### CI evidence
 
-Actions run page showing the successful SAST/SCA job:
+Actions run page showing the successful test/SAST/SCA pipeline and the Dependency-Check job:
 
 ![CI pipeline](cve/CVE-2016-3714/screenshots/04-ci-pipeline.png)
+
+Actions job page showing the SAST, SCA, scan-summary and artifact steps:
+
+![CI job steps](screenshots/07-ci-scan-summary.png)
 
 Local SAST/SCA summaries (bandit: 0 findings; safety: no known vulnerabilities):
 
@@ -135,6 +140,7 @@ Work-1/
 ├── .github/workflows/ci.yml
 ├── cve/CVE-2016-3714/   # exploit, fixed files, evidence, screenshots
 ├── report/              # Markdown source of the report
+├── screenshots/         # API test and CI job screenshots
 ├── requirements.txt
 ├── requirements-dev.txt
 └── run.py

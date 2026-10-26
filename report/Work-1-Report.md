@@ -8,7 +8,7 @@
 | Surname and Name | Wei Lixuan |
 | HDU number | 23320107 |
 | Repository | <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1> |
-| Last successful pipeline | <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40329490605> |
+| Last successful pipeline | <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40344831468> |
 
 ## 1. Purpose
 
@@ -34,18 +34,33 @@ The API is implemented with Python 3.11 and Flask 3.1.3, using SQLite for storag
 - **Secrets**: `JWT_SECRET` and `SECRET_KEY` are read from environment variables only; no real secret is committed.
 - **Tests**: 14 pytest cases cover authentication, token validation, authorization failures, validation, XSS escaping and SQL-injection behaviour.
 
+### 2.3 API test evidence
+
+The live API test session confirms the authentication flow and protected endpoints:
+
+- `POST /auth/login` returns 200 with a signed JWT.
+- `GET /api/data` without a token returns 401.
+- `GET /api/data` with the token returns 200.
+- `POST /api/data` with the token returns 201.
+
+![API functional tests](../screenshots/06-api-tests.png)
+
 ## 3. CI/CD pipeline
 
 Workflow file: `.github/workflows/ci.yml`. It runs on every push to `main` and on pull requests:
 
 1. `pytest` unit tests.
-2. **SAST** with `bandit -r app`, producing `reports/bandit.json`.
+2. **SAST** with `bandit -r app`, producing `reports/bandit.json` and `reports/bandit.txt`.
 3. **SCA** with `safety check -r requirements.txt`, producing `reports/safety.txt`.
-4. Upload of the `reports/` directory as a build artifact.
+4. **SCA** with the OWASP Dependency-Check CLI (v12.1.0), producing HTML/JSON reports as a separate artifact when the `NVD_API_KEY` secret is configured; otherwise the job skips the scan with an explicit notice.
+5. A readable scan summary published to the Actions job summary.
+6. Upload of the `reports/` directory as build artifacts.
 
-The final pipeline run passed: <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40329342618>
+The latest pipeline run passed: <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40344831468>
 
 ![CI pipeline](../cve/CVE-2016-3714/screenshots/04-ci-pipeline.png)
+
+![CI job steps](../screenshots/07-ci-scan-summary.png)
 
 ![SAST and SCA reports](../cve/CVE-2016-3714/screenshots/05-sast-sca.png)
 
