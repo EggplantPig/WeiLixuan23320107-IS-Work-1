@@ -2,7 +2,7 @@
 
 HDU IS course, Work 1. A functional REST API built with **Python / Flask**, hardened with the security controls required by the assignment, and scanned by a SAST/SCA CI pipeline. The Vulhub CVE reproduction and fix will be added in a follow-up commit.
 
-> Status: API, security controls, unit tests and GitHub Actions are implemented and CI is passing. The CVE reproduction/fix section is still pending.
+> Status: API, security controls, unit tests and GitHub Actions are implemented and CI is passing. The CVE-2016-3714 reproduction, root-cause analysis, fix, regression test and evidence screenshots are complete.
 
 ## 1. API
 
@@ -113,7 +113,26 @@ Work-1/
 └── run.py
 ```
 
-## 6. Real CVE reproduction and fix (TODO)
+## 6. Real CVE reproduction and fix — CVE-2016-3714
 
-- Vulnerable environment: Vulhub is cloned in WSL at `/home/EggplantPig/vulhub`.
-- Pending CVE selection. This section will document: CVE ID, environment startup commands, reproduction steps and screenshots, root-cause analysis, the fix, proof that the attack fails after the fix, and regression tests.
+CVE-2016-3714 ("ImageTragick") is a command-injection vulnerability in ImageMagick before 6.9.3-10 (and 7.x before 7.0.1-1). The vulnerable test environment is Vulhub's `imagemagick/CVE-2016-3714` (ImageMagick 6.9.2-10 behind a PHP upload page).
+
+| Phase | Result |
+|---|---|
+| Vulnerable environment | `vulhub/imagemagick:6.9.2-10-php`, upload page on port 8080 |
+| Reproduction | Crafted MVG upload executes `touch /tmp/success` inside the container |
+| Root cause | URL/filename passed to the ImageMagick delegate without escaping shell metacharacters (MVG/HTTPS coders) |
+| Fix | Dangerous coders disabled with a `policy.xml` mounted read-only; applied without rebuilding the pinned Vulhub image |
+| Fixed environment | Same payload is rejected (`not authorized`), no marker file is created |
+| Regression | Legitimate PNG upload still works (`Image size is: 1 x 1`) |
+
+Full commands, root-cause analysis, fix files and evidence:
+[`cve/CVE-2016-3714/README.md`](cve/CVE-2016-3714/README.md)
+
+Evidence screenshots:
+
+![Vulnerable attack](cve/CVE-2016-3714/screenshots/01-vulnerable-attack.png)
+![Fixed attack](cve/CVE-2016-3714/screenshots/02-fixed-attack.png)
+![Regression test](cve/CVE-2016-3714/screenshots/03-regression.png)
+![CI pipeline](cve/CVE-2016-3714/screenshots/04-ci-pipeline.png)
+![SAST and SCA](cve/CVE-2016-3714/screenshots/05-sast-sca.png)
