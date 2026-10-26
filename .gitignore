@@ -1,4 +1,4 @@
-﻿# OS / editor
+# OS / editor
 Thumbs.db
 Desktop.ini
 .DS_Store
@@ -31,3 +31,8 @@ target/
 
 # Logs / reports
 *.log
+reports/
+
+# Local database
+instance/
+*.sqlite3

@@ -1,0 +1,3 @@
+pytest==8.4.2
+bandit==1.9.4
+safety==3.8.1
