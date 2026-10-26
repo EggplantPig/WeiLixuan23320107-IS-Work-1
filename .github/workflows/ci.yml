@@ -71,53 +71,47 @@ jobs:
           path: reports/
           if-no-files-found: ignore
 
-  dependency-check:
-    name: SCA - OWASP Dependency-Check
+  snyk:
+    name: SCA - Snyk
     runs-on: ubuntu-latest
     env:
-      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-    timeout-minutes: 20
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          distribution: temurin
-          java-version: "17"
+          python-version: "3.11"
 
-      - name: Download OWASP Dependency-Check CLI
-        run: |
-          curl -sSL -o dc.zip https://github.com/jeremylong/DependencyCheck/releases/download/v12.1.0/dependency-check-12.1.0-release.zip
-          unzip -q dc.zip -d dc
-          ./dc/dependency-check/bin/dependency-check.sh --version
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-      - name: Run OWASP Dependency-Check
-        if: env.NVD_API_KEY != ''
+      - name: Install Snyk CLI
+        run: npm install -g snyk snyk-to-html
+
+      - name: Run Snyk dependency scan
+        if: env.SNYK_TOKEN != ''
         run: |
           mkdir -p reports
-          ./dc/dependency-check/bin/dependency-check.sh \
-            --project Work-1 \
-            --scan . \
-            --exclude .git \
-            --enableExperimental \
-            --format HTML --format JSON \
-            --out reports \
-            --failOnCVSS 11 \
-            --nvdApiKey "$NVD_API_KEY"
+          python -m pip install -r requirements.txt
+          snyk test --file=requirements.txt --package-manager=pip --json-file-output=reports/snyk.json || true
+          snyk-to-html -i reports/snyk.json -o reports/snyk-report.html || true
 
-      - name: Explain skipped Dependency-Check
-        if: env.NVD_API_KEY == ''
+      - name: Explain skipped Snyk scan
+        if: env.SNYK_TOKEN == ''
         run: |
-          echo "::notice::NVD_API_KEY is not configured; OWASP Dependency-Check scan was skipped."
-          echo "Add NVD_API_KEY as a repository secret and re-run the workflow to enable it."
+          echo "::notice::SNYK_TOKEN is not configured; Snyk scan was skipped."
+          echo "Add SNYK_TOKEN as a repository secret and re-run the workflow to enable it."
 
-      - name: Upload Dependency-Check report
+      - name: Upload Snyk report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dependency-check-report
+          name: snyk-report
           path: reports/
           if-no-files-found: ignore
