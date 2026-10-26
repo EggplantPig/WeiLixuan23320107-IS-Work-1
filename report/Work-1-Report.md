@@ -5,11 +5,10 @@
 | Field | Value |
 |---|---|
 | Work | Work 1 — Secure REST API Development with CI/CD and Real CVE Vulnerability Analysis |
-| Variant number | _to be confirmed with the teacher_ |
 | Surname and Name | Wei Lixuan |
 | HDU number | 23320107 |
 | Repository | <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1> |
-| Last successful pipeline | <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40329342618> |
+| Last successful pipeline | <https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/runs/40329490605> |
 
 ## 1. Purpose
 
