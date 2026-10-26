@@ -38,6 +38,7 @@ jobs:
         run: |
           mkdir -p reports
           bandit -r app -f json -o reports/bandit.json
+          bandit -r app -f txt -o reports/bandit.txt
 
       - name: SCA - safety (dependency vulnerability scan)
         run: |
@@ -45,10 +46,69 @@ jobs:
           set -o pipefail
           safety check -r requirements.txt | tee reports/safety.txt
 
+      - name: Publish scan summary
+        if: always()
+        run: |
+          {
+            echo "## Security scan summary"
+            echo ""
+            echo "### SAST - bandit"
+            echo '```'
+            tail -n 25 reports/bandit.txt 2>/dev/null || true
+            echo '```'
+            echo ""
+            echo "### SCA - safety"
+            echo '```'
+            grep -E "No known security|vulnerabilities" reports/safety.txt 2>/dev/null || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload security reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: security-reports
+          path: reports/
+          if-no-files-found: ignore
+
+  dependency-check:
+    name: SCA - OWASP Dependency-Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Download OWASP Dependency-Check CLI
+        run: |
+          curl -sSL -o dc.zip https://github.com/jeremylong/DependencyCheck/releases/download/v12.1.0/dependency-check-12.1.0-release.zip
+          unzip -q dc.zip -d dc
+          ./dc/dependency-check/bin/dependency-check.sh --version
+
+      - name: Run OWASP Dependency-Check
+        continue-on-error: true
+        timeout-minutes: 8
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          mkdir -p reports
+          ARGS="--project Work-1 --scan . --exclude .git --enableExperimental --format HTML --format JSON --out reports --failOnCVSS 11"
+          if [ -n "$NVD_API_KEY" ]; then
+            ARGS="$ARGS --nvdApiKey $NVD_API_KEY"
+          fi
+          ./dc/dependency-check/bin/dependency-check.sh $ARGS
+
+      - name: Upload Dependency-Check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
           path: reports/
           if-no-files-found: ignore
