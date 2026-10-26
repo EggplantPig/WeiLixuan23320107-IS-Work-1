@@ -86,7 +86,7 @@ pytest -q
 
 Workflow: `.github/workflows/ci.yml`. It runs on every push to `main` and on pull requests:
 
-[![CI](https://github.com/EggplantPig/Work-1/actions/workflows/ci.yml/badge.svg)](https://github.com/EggplantPig/Work-1/actions/workflows/ci.yml)
+[![CI](https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/workflows/ci.yml/badge.svg)](https://github.com/EggplantPig/WeiLixuan23320107-IS-Work-1/actions/workflows/ci.yml)
 
 1. Install dependencies and run `pytest`.
 2. **SAST**: `bandit -r app`, writing `reports/bandit.json`.
